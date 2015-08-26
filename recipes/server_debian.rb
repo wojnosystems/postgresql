@@ -43,14 +43,9 @@ include_recipe "postgresql::server_conf"
 
 # Create the cluster
 execute 'Set locale and Create cluster' do
-  command "export LC_ALL=C; /usr/bin/pg_createcluster --datadir='#{node['postgresql']['config']['data_directory']}' #{two_digit_version} main"
+  command "LC_ALL=C /usr/bin/pg_createcluster --datadir='#{node['postgresql']['config']['data_directory']}' #{two_digit_version} main"
   action :run
   not_if { ::File.directory?(node['postgresql']['config']['data_directory'] + '/PG_VERSION') }
-end
-
-# Start the server again
-service "postgresql" do
-  service_name node['postgresql']['server']['service_name']
-  action [:start]
+	notifies :start, 'service[postgresql]', :immediately
 end
 
